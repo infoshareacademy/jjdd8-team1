@@ -40,9 +40,8 @@ public class ConfirmReservationServlet extends HttpServlet {
 
         String message = reservationService
                 .findReservationByToken(token)
-                .map(reservation -> confirmReservation(reservation))
+                .map(reservation -> confirmReservation(token))
                 .orElseGet(() -> "Link nieprawidłowy");
-
 
         Map<String, Object> model = new HashMap<>();
         model.put("message", message);
@@ -54,17 +53,15 @@ public class ConfirmReservationServlet extends HttpServlet {
         }
     }
 
-    private String confirmReservation(Reservation reservation) {
+    private String confirmReservation(String token) {
 
         if (Timestamp.valueOf(LocalDateTime.now())
-                .before(reservation.getExpirationTime())) {
-            reservationService.confirm(reservation);
+                .before(reservationService.findReservationByToken(token).get().getExpirationTime())) {
+            reservationService.confirm(reservationService.findReservationByToken(token).get());
             return "Rezerwacja potwierdzona pomyślnie";
-        } else  {
+        } else {
             return "Czas ważności linku potwierdzającego upłynął";
-
         }
-        }
-
     }
+}
 

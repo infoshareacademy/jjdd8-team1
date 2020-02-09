@@ -43,7 +43,7 @@ public class SingleBookServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String name = (String) req.getSession().getAttribute("name");
+
         String email = (String) req.getSession().getAttribute("email");
         String role = (String) req.getSession().getAttribute("role");
 
@@ -56,16 +56,11 @@ public class SingleBookServlet extends HttpServlet {
         }
         Long id = Long.valueOf(param);
 
-        Book book = bookService.getById(id);
-
         boolean isReserved = true;
         boolean isRated = true;
 
-        if (reservationService.findReservationByBook(book).isEmpty()) {
+        if (reservationService.findReservationByBook(bookService.getById(id)).isEmpty()) {
             isReserved = false;
-        }
-        if (req.getSession().getAttribute("email") == null) {
-            isReserved = true;
         }
 
         PrintWriter writer = resp.getWriter();
@@ -78,21 +73,26 @@ public class SingleBookServlet extends HttpServlet {
         BookView bookView = bookService.getBookViewById(id);
 
         model.put("book", bookView);
-        model.put("isReserved", isReserved);
 
         if (email != null && !email.isEmpty()) {
             model.put("logged", "yes");
             model.put("email", email);
         } else {
-            model.put("logged", "no");}
+            model.put("logged", "no");
+            isReserved = true;
+        }
         if(role != null && role.equals("superadmin")) {
             model.put("superadmin", "yes");
         }
-        else {model.put("superadmin", "no");}
+        else {
+            model.put("superadmin", "no");
+        }
+        model.put("isReserved", isReserved);
             try {
                 template.process(model, writer);
             } catch (TemplateException e) {
                 logger.error("Template error");
             }
+
         }
     }

@@ -33,9 +33,8 @@ public class ReservationApi {
     @Path("/{id}")
     public Response reserveBook(@PathParam("id") String id, @Context HttpServletRequest req) throws MessagingException, IOException {
 
-
         Long idParam = Long.parseLong(id);
-        String email =(String) req.getSession().getAttribute("email");
+        String email = (String) req.getSession().getAttribute("email");
         logger.info("email from req Session: {}", email);
 
         ReservationDTO reservation = new ReservationDTO();
